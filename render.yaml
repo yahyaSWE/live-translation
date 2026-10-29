@@ -1,0 +1,32 @@
+# Render Blueprint. Creates a paid 0.5 CPU / 512 MB test service; review pricing before applying.
+services:
+  - type: web
+    name: live-translate
+    runtime: docker
+    region: frankfurt
+    plan: 0.5c-512mb
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    # Deploy manually outside broadcasts: sessions are held in process memory.
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      - key: BROADCAST_PASSWORD
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+# APP_URL is optional for the initial onrender.com URL: the app uses
+# RENDER_EXTERNAL_URL automatically. Set APP_URL when adding your own domain.

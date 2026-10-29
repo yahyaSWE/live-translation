@@ -1,255 +1,159 @@
-/**
- * Copyright 2026 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import { randomUUID } from "node:crypto";
+import type { TranslationBridge } from "./translation-bridge";
+import { roomService } from "./livekit-server";
+import { MAX_LISTENERS, TARGET_LANGUAGE } from "./server-config";
+import { HttpError } from "./http";
 
-/**
- * TranslationSessionManager: Singleton that enforces "max 1 Gemini Live API
- * session per language per room" constraint.
- *
- * Usage:
- *   const manager = TranslationSessionManager.getInstance();
- *   const bridge = await manager.getOrCreate(sessionId, targetLanguage, organizerIdentity);
- */
-
-import { TranslationBridge, BridgeStatus } from "./translation-bridge";
-
-export interface TranslationInfo {
-  language: string;
-  translatorIdentity: string;
-  status: BridgeStatus;
-  subscriberCount: number;
-}
+export const HOST_TIMEOUT_MS = 45_000;
+const MAX_SESSION_MS = 4 * 60 * 60 * 1000;
 
 export interface SessionInfo {
   sessionId: string;
   organizerIdentity: string;
-  createdAt: Date;
-  allowedLanguages?: string[];
-  systemInstruction?: string;
+  title: string;
+  createdAt: number;
+  lastHeartbeat: number;
+  broadcasting: boolean;
+  allowedLanguages: string[];
 }
 
-const globalForSessionManager = global as unknown as {
-  sessionManagerInstance: TranslationSessionManager;
+type Bridge = Pick<TranslationBridge, "identity" | "status" | "start" | "stop" | "onStop">;
+export type SessionDependencies = {
+  rooms: () => Pick<ReturnType<typeof roomService>, "createRoom" | "deleteRoom" | "listRooms" | "listParticipants">;
+  bridge: (session: SessionInfo) => Promise<Bridge>;
+  now: () => number;
 };
 
-class TranslationSessionManager {
-  // Map<sessionId, Map<languageCode, TranslationBridge>>
-  private translations: Map<string, Map<string, TranslationBridge>> = new Map();
+const defaults: SessionDependencies = {
+  rooms: roomService,
+  now: Date.now,
+  bridge: async (session) => {
+    const { TranslationBridge } = await import("./translation-bridge");
+    return new TranslationBridge(session.sessionId, TARGET_LANGUAGE, session.organizerIdentity, {
+      geminiApiKey: process.env.GEMINI_API_KEY!, livekitUrl: process.env.LIVEKIT_URL!,
+      livekitApiKey: process.env.LIVEKIT_API_KEY!, livekitApiSecret: process.env.LIVEKIT_API_SECRET!,
+    });
+  },
+};
 
-  // Map<sessionId, SessionInfo>
-  private sessions: Map<string, SessionInfo> = new Map();
+export class TranslationSessionManager {
+  private session?: SessionInfo;
+  private bridge?: Bridge;
+  private starting?: Promise<Bridge>;
+  private creating?: Promise<SessionInfo>;
+  private stopping?: Promise<void>;
+  private cleanup?: ReturnType<typeof setInterval>;
 
-  private constructor() {}
+  constructor(private deps: SessionDependencies = defaults) {}
 
   static getInstance(): TranslationSessionManager {
-    if (!globalForSessionManager.sessionManagerInstance) {
-      globalForSessionManager.sessionManagerInstance = new TranslationSessionManager();
-    }
-    return globalForSessionManager.sessionManagerInstance;
+    const state = globalThis as typeof globalThis & { ltSessions?: TranslationSessionManager };
+    return state.ltSessions ??= new TranslationSessionManager();
   }
 
-  // Session management
-  createSession(
-    sessionId: string,
-    organizerIdentity: string,
-    allowedLanguages?: string[],
-    systemInstruction?: string
-  ): SessionInfo {
-    const info: SessionInfo = {
-      sessionId,
-      organizerIdentity,
-      createdAt: new Date(),
-      allowedLanguages,
-      systemInstruction,
+  getSession(id?: string) { return this.session && (!id || this.session.sessionId === id) ? this.session : undefined; }
+
+  createSession(title: string): Promise<SessionInfo> {
+    if (this.creating) return this.creating;
+    const pending = this.create(title);
+    this.creating = pending;
+    void pending.finally(() => { if (this.creating === pending) this.creating = undefined; }).catch(() => {});
+    return pending;
+  }
+
+  private async create(title: string) {
+    await this.stopping;
+    if (this.session) throw new HttpError(409, "En sändning finns redan. Öppna eller avsluta den först.");
+    const rooms = this.deps.rooms();
+    // Clean up only this application's orphan rooms after a process restart.
+    const previous = await rooms.listRooms();
+    for (const room of previous) {
+      if (room.name.startsWith("lt-") && room.metadata === "live-translate-v1") await rooms.deleteRoom(room.name);
+    }
+    const session: SessionInfo = {
+      sessionId: `lt-${randomUUID()}`, organizerIdentity: `organizer-${randomUUID()}`,
+      title, createdAt: this.deps.now(), lastHeartbeat: this.deps.now(),
+      broadcasting: false, allowedLanguages: [TARGET_LANGUAGE],
     };
-    this.sessions.set(sessionId, info);
-    console.log(
-      `[SessionManager] Created session ${sessionId} for organizer ${organizerIdentity} with allowed languages: ${allowedLanguages?.join(", ") || "all"}${systemInstruction ? `, systemInstruction: "${systemInstruction.slice(0, 50)}..."` : ""}`
-    );
-    return info;
-  }
-
-  getSession(sessionId: string): SessionInfo | undefined {
-    return this.sessions.get(sessionId);
-  }
-
-  // Translation management
-  async getOrCreate(
-    sessionId: string,
-    targetLanguage: string,
-    organizerIdentity: string
-  ): Promise<TranslationBridge> {
-    // Check if we already have a bridge for this language
-    let languageMap = this.translations.get(sessionId);
-    if (languageMap) {
-      const existingBridge = languageMap.get(targetLanguage);
-      if (existingBridge && existingBridge.status === "active") {
-        console.log(
-          `[SessionManager] Reusing existing bridge for ${targetLanguage} in session ${sessionId}`
-        );
-        existingBridge.subscriberCount++;
-        return existingBridge;
+    await rooms.createRoom({ name: session.sessionId, maxParticipants: MAX_LISTENERS + 2, emptyTimeout: 300, departureTimeout: 60, metadata: "live-translate-v1" });
+    this.session = session;
+    this.cleanup ??= setInterval(() => {
+      if (this.session && (this.deps.now() - this.session.lastHeartbeat > HOST_TIMEOUT_MS || this.deps.now() - this.session.createdAt > MAX_SESSION_MS)) {
+        void this.endSession(this.session.sessionId).catch(() => console.error("[Session] Cleanup failed"));
       }
-      // If bridge exists but is in error/closed state, clean it up
-      if (existingBridge && (existingBridge.status === "error" || existingBridge.status === "closed")) {
-        console.log(
-          `[SessionManager] Cleaning up stale bridge for ${targetLanguage}`
-        );
-        await existingBridge.stop();
-        languageMap.delete(targetLanguage);
-      }
-    }
-
-    // Create a new bridge
-    console.log(
-      `[SessionManager] Creating new bridge for ${targetLanguage} in session ${sessionId}`
-    );
-
-    const session = this.getSession(sessionId);
-
-    const config = {
-      geminiApiKey: process.env.GEMINI_API_KEY!,
-      livekitUrl: process.env.LIVEKIT_URL || "ws://localhost:7880",
-      livekitApiKey: process.env.LIVEKIT_API_KEY!,
-      livekitApiSecret: process.env.LIVEKIT_API_SECRET!,
-      systemInstruction: session?.systemInstruction,
-    };
-
-    const bridge = new TranslationBridge(
-      sessionId,
-      targetLanguage,
-      organizerIdentity,
-      config
-    );
-
-    bridge.onStop = () => {
-      const languageMap = this.translations.get(sessionId);
-      if (languageMap) {
-        languageMap.delete(targetLanguage);
-        if (languageMap.size === 0) {
-          this.translations.delete(sessionId);
-          console.log(
-            `[SessionManager] Cleaned up active translations for session ${sessionId} as all translation bridges stopped.`
-          );
-        }
-      }
-    };
-
-    // Store the bridge before starting (to prevent race conditions)
-    if (!languageMap) {
-      languageMap = new Map();
-      this.translations.set(sessionId, languageMap);
-    }
-    languageMap.set(targetLanguage, bridge);
-
-    try {
-      await bridge.start();
-      bridge.subscriberCount = 1;
-      return bridge;
-    } catch (error) {
-      // Clean up on failure
-      languageMap.delete(targetLanguage);
-      throw error;
-    }
+    }, 10_000);
+    this.cleanup.unref();
+    return session;
   }
 
-  getActiveTranslations(sessionId: string): TranslationInfo[] {
-    const languageMap = this.translations.get(sessionId);
-    if (!languageMap) return [];
-
-    const result: TranslationInfo[] = [];
-    for (const [language, bridge] of languageMap) {
-      result.push({
-        language,
-        translatorIdentity: bridge.identity,
-        status: bridge.status,
-        subscriberCount: bridge.subscriberCount,
-      });
-    }
-    return result;
+  async heartbeat(id: string, broadcasting: boolean) {
+    const session = this.getSession(id);
+    if (!session) throw new HttpError(404, "Sändningen har avslutats. Skapa en ny från admin.");
+    session.lastHeartbeat = this.deps.now();
+    session.broadcasting = broadcasting;
+    if (broadcasting) await this.ensureTranslation(id);
   }
 
-  /**
-   * Decrement subscriber count for a language. If the last subscriber
-   * leaves, stop the bridge and tear down the Gemini session.
-   */
-  async unsubscribe(
-    sessionId: string,
-    targetLanguage: string
-  ): Promise<void> {
-    const languageMap = this.translations.get(sessionId);
-    if (!languageMap) return;
-
-    const bridge = languageMap.get(targetLanguage);
-    if (!bridge || bridge.status === "closed") return;
-
-    bridge.subscriberCount = Math.max(0, bridge.subscriberCount - 1);
-    console.log(
-      `[SessionManager] Unsubscribed from ${targetLanguage} in session ${sessionId} (${bridge.subscriberCount} remaining)`
-    );
-
-    if (bridge.subscriberCount === 0) {
-      languageMap.delete(targetLanguage);
-      if (languageMap.size === 0) {
-        this.translations.delete(sessionId);
-      }
-
-      console.log(
-        `[SessionManager] No more subscribers for ${targetLanguage}, tearing down bridge`
-      );
-      bridge.onStop = undefined;
-      await bridge.stop();
-    }
-  }
-
-  async removeTranslation(
-    sessionId: string,
-    targetLanguage: string
-  ): Promise<void> {
-    const languageMap = this.translations.get(sessionId);
-    if (!languageMap) return;
-
-    const bridge = languageMap.get(targetLanguage);
-    if (bridge) {
-      bridge.onStop = undefined;
-      await bridge.stop();
-      languageMap.delete(targetLanguage);
-      console.log(
-        `[SessionManager] Removed bridge for ${targetLanguage} in session ${sessionId}`
-      );
-    }
-  }
-
-  async removeAllTranslations(sessionId: string): Promise<void> {
-    const languageMap = this.translations.get(sessionId);
-    if (languageMap) {
-      for (const [, bridge] of languageMap) {
+  ensureTranslation(id: string): Promise<Bridge> {
+    const session = this.getSession(id);
+    if (!session) return Promise.reject(new HttpError(404, "Sändningen finns inte."));
+    if (this.starting) return this.starting;
+    if (this.bridge?.status === "active") return Promise.resolve(this.bridge);
+    const pending = (async () => {
+      const old = this.bridge;
+      this.bridge = undefined;
+      if (old) { old.onStop = undefined; await old.stop(); }
+      const bridge = await this.deps.bridge(session);
+      if (this.session !== session) { await bridge.stop(); throw new Error("Session ended"); }
+      this.bridge = bridge;
+      bridge.onStop = () => { if (this.bridge === bridge) this.bridge = undefined; };
+      try {
+        await bridge.start();
+        if (this.session !== session) { await bridge.stop(); throw new Error("Session ended"); }
+        return bridge;
+      } catch (error) {
         bridge.onStop = undefined;
-        await bridge.stop();
+        await bridge.stop().catch(() => {});
+        if (this.bridge === bridge) this.bridge = undefined;
+        throw error;
       }
-      languageMap.clear();
-      this.translations.delete(sessionId);
-    }
-    this.sessions.delete(sessionId);
-    console.log(
-      `[SessionManager] Removed all bridges and session for ${sessionId}`
-    );
+    })();
+    this.starting = pending;
+    void pending.finally(() => { if (this.starting === pending) this.starting = undefined; }).catch(() => {});
+    return pending;
   }
 
-  getAllSessions(): SessionInfo[] {
-    return Array.from(this.sessions.values());
+  publicStatus() {
+    const s = this.session;
+    if (!s) return { state: "waiting" as const, sessionId: null, title: "Direktöversättning", targetLanguage: TARGET_LANGUAGE };
+    const connected = this.deps.now() - s.lastHeartbeat <= HOST_TIMEOUT_MS;
+    const state = !connected ? "interrupted" : !s.broadcasting ? "paused" : this.bridge?.status === "active" ? "live" : "starting";
+    return { state, sessionId: s.sessionId, title: s.title, targetLanguage: TARGET_LANGUAGE };
+  }
+
+  translationStatus() { return this.bridge?.status || (this.starting ? "starting" : "closed"); }
+
+  async listenerCount(id: string) {
+    const participants = await this.deps.rooms().listParticipants(id);
+    return participants.filter((p) => p.identity.startsWith("attendee-")).length;
+  }
+
+  endSession(id: string): Promise<void> {
+    if (this.stopping) return this.stopping;
+    if (!this.getSession(id)) return Promise.resolve();
+    this.session = undefined;
+    if (this.cleanup) clearInterval(this.cleanup);
+    this.cleanup = undefined;
+    const bridge = this.bridge;
+    this.bridge = undefined;
+    if (bridge) bridge.onStop = undefined;
+    const pending = (async () => {
+      await this.starting?.catch(() => {});
+      try { await bridge?.stop(); } finally { await this.deps.rooms().deleteRoom(id); }
+    })();
+    this.stopping = pending;
+    void pending.finally(() => { if (this.stopping === pending) this.stopping = undefined; }).catch(() => {});
+    return pending;
   }
 }
 

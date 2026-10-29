@@ -16,6 +16,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400&display=swap');
 
+/* Public listening and broadcast operation inherit the original paper-and-ink identity. */
+
 :root {
   --font-display: 'Instrument Serif', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
@@ -27,7 +29,7 @@
 
   --fg: #1A1917;
   --fg-secondary: #6B6860;
-  --fg-tertiary: #9C9890;
+  --fg-tertiary: #716D65;
   --fg-ghost: #C4C0B8;
 
   --accent: #C8432B;
@@ -496,4 +498,83 @@ body {
   .btn-dark {
     width: 100%;
   }
+}
+
+::selection { background: var(--accent); color: #fff; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+input, textarea { caret-color: var(--accent); }
+a { text-underline-offset: 4px; }
+button, input, select { font: inherit; }
+input[type="range"], input[type="checkbox"] { accent-color: var(--accent); }
+input[type="range"] { width: 100%; min-height: 44px; cursor: pointer; }
+button:disabled, select:disabled { cursor: not-allowed; }
+.wide { width: 100%; }
+.audience-page, .admin-page { justify-content: flex-start; padding: 0 28px; }
+.audience-shell { width: 100%; max-width: 920px; min-height: 100svh; display: flex; flex-direction: column; }
+.admin-shell { width: 100%; max-width: 680px; min-height: 100svh; display: flex; flex-direction: column; }
+.admin-page > [data-lk-theme], .admin-page > .lk-room-container { width: 100%; display: flex; justify-content: center; }
+.site-header, .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 0; }
+.site-header { border-bottom: 1px solid var(--border); }
+.site-header a, .site-footer a { color: var(--fg-secondary); font-size: 13px; }
+.site-header .wordmark { font-family: var(--font-display); font-size: 27px; color: var(--fg); text-decoration: none; white-space: nowrap; }
+.language-pair { font-size: 13px; color: var(--fg-secondary); }
+.audience-main { width: 100%; max-width: 540px; margin: auto; padding: 70px 0 76px; }
+.audience-heading { font-size: clamp(56px, 8vw, 88px); text-wrap: balance; }
+.audience-heading em { color: var(--accent); }
+.audience-description { max-width: 360px; margin-top: 26px; color: var(--fg-secondary); font-size: 17px; line-height: 1.65; }
+.broadcast-status { display: flex; gap: 10px; align-items: flex-start; color: var(--fg-secondary); font-size: 14px; margin-top: 30px; }
+.live-dot { display: block; flex: 0 0 8px; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: var(--fg-secondary); }
+.live-dot.is-live { background: var(--success); }
+.broadcast-name { font-size: 14px; margin: 10px 0 0 18px; overflow-wrap: anywhere; }
+.join-button { width: 100%; justify-content: space-between; min-height: 88px; padding: 24px 28px; margin-top: 32px; font-size: 21px; }
+.join-button:disabled { opacity: 1; color: #6b6860; background: #e5e2db; }
+.site-footer { border-top: 1px solid var(--border); margin-top: auto; color: var(--fg-secondary); font-size: 12px; }
+.listener-controls { margin-top: 32px; }
+.field-label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 14px; margin-bottom: 9px; color: var(--fg); }
+.check-label { display: flex; gap: 10px; align-items: center; min-height: 44px; margin-top: 12px; font-size: 14px; cursor: pointer; }
+.check-label input { width: 17px; height: 17px; }
+.section-title { font-size: 17px; line-height: 1.4; font-weight: 500; margin-bottom: 18px; }
+.transcript-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+.transcript-text { max-height: 320px; overflow-y: auto; padding-right: 12px; scrollbar-color: var(--fg-ghost) transparent; font-size: 18px; line-height: 1.75; overflow-wrap: anywhere; white-space: pre-wrap; }
+.fine-print { font-size: 12px; line-height: 1.6; color: var(--fg-secondary); margin-top: 14px; }
+.leave-button { margin-top: 24px; min-height: 48px; }
+.admin-main { padding: 56px 0 64px; }
+.admin-main > .body { margin-top: 16px; font-size: 16px; }
+.admin-form { display: flex; flex-direction: column; gap: 14px; margin-top: 32px; }
+.admin-form .field-label { margin-bottom: -5px; }
+.admin-form .btn, .admin-main > .btn { min-height: 52px; }
+.admin-section { margin: 32px 0; padding-top: 28px; border-top: 1px solid var(--border); }
+.setup-list { list-style: none; margin-bottom: 14px; }
+.setup-list li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.setup-ready { color: var(--success); }
+.setup-missing { color: var(--error); }
+.error-message { color: var(--error); background: var(--error-soft); padding: 14px 16px; font-size: 14px; line-height: 1.6; margin-top: 22px; overflow-wrap: anywhere; }
+.active-title { margin-bottom: 20px; font-size: 20px; overflow-wrap: anywhere; }
+.microphone-button { min-height: 64px; margin-top: 20px; }
+.listener-count { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0; border-block: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.listener-count > span:last-child { font-size: 24px; }
+.capacity-label { color: var(--fg-secondary); font-size: 15px; }
+.share-section { display: flex; align-items: center; justify-content: space-between; gap: 28px; border-top: 0; }
+.share-section > div:first-child { min-width: 0; }
+.share-url { font-size: 14px; overflow-wrap: anywhere; margin: 14px 0; }
+.share-section .qr-wrap { padding: 12px; }
+.button-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.end-section .btn-danger { min-height: 48px; }
+
+@media (max-width: 520px) {
+  .audience-page, .admin-page { padding: 0 22px; }
+  .site-header { padding: 22px 0; gap: 16px; }
+  .language-pair { max-width: 105px; text-align: right; font-size: 12px; }
+  .audience-main { padding: 52px 0; }
+  .audience-heading { font-size: clamp(52px, 14vw, 72px); }
+  .audience-description { font-size: 16px; }
+  .join-button { min-height: 80px; font-size: 19px; padding: 22px; }
+  .admin-main { padding: 40px 0 48px; }
+  .share-section { flex-direction: column; align-items: flex-start; }
+  .site-footer { font-size: 11px; }
+  .site-footer a { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

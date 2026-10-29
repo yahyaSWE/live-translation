@@ -20,7 +20,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Live Translate",
   description:
-    "Real-time broadcast translation powered by the Gemini Live API.",
+    "Lyssna på arabiskt tal, översatt till svenska i realtid.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="sv">
       <body>{children}</body>
     </html>
   );
