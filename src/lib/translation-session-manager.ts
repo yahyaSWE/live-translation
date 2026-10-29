@@ -3,6 +3,7 @@ import type { TranslationBridge } from "./translation-bridge";
 import { roomService } from "./livekit-server";
 import { MAX_LISTENERS, TARGET_LANGUAGE } from "./server-config";
 import { HttpError } from "./http";
+import { ServiceError } from "./service-error";
 
 export const HOST_TIMEOUT_MS = 45_000;
 const MAX_SESSION_MS = 4 * 60 * 60 * 1000;
@@ -28,11 +29,13 @@ const defaults: SessionDependencies = {
   rooms: roomService,
   now: Date.now,
   bridge: async (session) => {
-    const { TranslationBridge } = await import("./translation-bridge");
-    return new TranslationBridge(session.sessionId, TARGET_LANGUAGE, session.organizerIdentity, {
-      geminiApiKey: process.env.GEMINI_API_KEY!, livekitUrl: process.env.LIVEKIT_URL!,
-      livekitApiKey: process.env.LIVEKIT_API_KEY!, livekitApiSecret: process.env.LIVEKIT_API_SECRET!,
-    });
+    try {
+      const { TranslationBridge } = await import("./translation-bridge");
+      return new TranslationBridge(session.sessionId, TARGET_LANGUAGE, session.organizerIdentity, {
+        geminiApiKey: process.env.GEMINI_API_KEY!, livekitUrl: process.env.LIVEKIT_URL!,
+        livekitApiKey: process.env.LIVEKIT_API_KEY!, livekitApiSecret: process.env.LIVEKIT_API_SECRET!,
+      });
+    } catch (error) { throw new ServiceError("BRIDGE_RUNTIME", "bridge.load", error); }
   },
 };
 
@@ -98,7 +101,7 @@ export class TranslationSessionManager {
     const session = this.getSession(id);
     if (!session) return Promise.reject(new HttpError(404, "Sändningen finns inte."));
     if (this.starting) return this.starting;
-    if (this.bridge?.status === "active") return Promise.resolve(this.bridge);
+    if (this.bridge?.status === "active" || this.bridge?.status === "reconnecting") return Promise.resolve(this.bridge);
     const pending = (async () => {
       const old = this.bridge;
       this.bridge = undefined;

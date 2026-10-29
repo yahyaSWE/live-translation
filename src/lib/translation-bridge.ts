@@ -2,6 +2,8 @@
 import { Room, RoomEvent, LocalAudioTrack, AudioSource, AudioFrame, TrackPublishOptions, TrackSource, TrackKind, AudioStream, type RemoteAudioTrack, type RemoteTrackPublication, type RemoteParticipant } from "@livekit/rtc-node";
 import { AccessToken } from "livekit-server-sdk";
 import WebSocket from "ws";
+import { connectGemini, type GeminiMessage } from "./gemini-connection";
+import { geminiError, logServiceError, ServiceError } from "./service-error";
 
 export type BridgeStatus = "starting" | "active" | "reconnecting" | "error" | "closed";
 type Config = { geminiApiKey: string; livekitUrl: string; livekitApiKey: string; livekitApiSecret: string };
@@ -27,12 +29,14 @@ export class TranslationBridge {
   private text = "";
   private textTimer?: ReturnType<typeof setTimeout>;
   private segment = 0;
+  private shutdown = new AbortController();
 
   constructor(readonly sessionId: string, readonly targetLanguage: string, private organizerIdentity: string, private config: Config) {
     this.identity = `translator-${targetLanguage}`;
   }
 
   async start() {
+    let stage = "livekit.connect";
     try {
       const token = new AccessToken(this.config.livekitApiKey, this.config.livekitApiSecret, { identity: this.identity, ttl: "4h" });
       token.addGrant({ roomJoin: true, room: this.sessionId, canPublish: true, canSubscribe: true, canPublishData: true });
@@ -55,11 +59,13 @@ export class TranslationBridge {
       });
       await room.connect(this.config.livekitUrl, await token.toJwt(), { autoSubscribe: false, dynacast: false });
       if (this.stopped) throw new Error("Stopped during startup");
+      stage = "livekit.publish";
       this.source = new AudioSource(24_000, 1, 1000);
       const track = LocalAudioTrack.createAudioTrack(`translated-audio-${this.targetLanguage}`, this.source);
       const options = new TrackPublishOptions();
       options.source = TrackSource.SOURCE_MICROPHONE;
       await room.localParticipant!.publishTrack(track, options);
+      stage = "gemini.setup";
       await this.openGemini();
       if (this.stopped) throw new Error("Stopped during startup");
       for (const p of room.remoteParticipants.values()) {
@@ -67,9 +73,11 @@ export class TranslationBridge {
         for (const pub of p.trackPublications.values()) if (pub.kind === TrackKind.KIND_AUDIO) pub.setSubscribed(true);
       }
       this.status = "active";
-    } catch {
+    } catch (error) {
       if (!this.stopped) this.status = "error";
-      throw new Error("Translation bridge could not start");
+      if (error instanceof ServiceError) throw error;
+      if (stage === "gemini.setup") throw geminiError(error);
+      throw new ServiceError(stage === "livekit.connect" ? "LIVEKIT_CONNECT" : "LIVEKIT_PUBLISH", stage, error);
     }
   }
 
@@ -77,6 +85,7 @@ export class TranslationBridge {
     if (this.stopPromise) return this.stopPromise;
     this.stopped = true;
     this.status = "closed";
+    this.shutdown.abort();
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     if (this.hostTimer) clearTimeout(this.hostTimer);
     if (this.textTimer) clearTimeout(this.textTimer);
@@ -97,63 +106,42 @@ export class TranslationBridge {
   }
 
   private openGemini(): Promise<void> {
-    const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(this.config.geminiApiKey)}`;
-    return new Promise((resolve, reject) => {
-      const ws = new WebSocket(url, { handshakeTimeout: 15_000, maxPayload: 4 * 1024 * 1024 });
-      this.sockets.add(ws);
-      let ready = false;
-      const timeout = setTimeout(() => { ws.terminate(); reject(new Error("Gemini setup timeout")); }, 15_000);
-      ws.on("open", () => {
-        if (this.stopped) { ws.terminate(); return; }
-        ws.send(JSON.stringify({ setup: {
-          model: `models/${process.env.GEMINI_MODEL || "gemini-3.5-live-translate-preview"}`,
-          generationConfig: {
-            responseModalities: ["AUDIO"], outputAudioTranscription: {},
-            translationConfig: { targetLanguageCode: this.targetLanguage, echoTargetLanguage: true },
-          },
-          sessionResumption: this.resumeHandle ? { handle: this.resumeHandle } : {},
-        } }));
-      });
-      ws.on("message", (raw) => {
-        try {
-          const message = JSON.parse(raw.toString());
-          if (message.error) { ws.close(); return; }
-          if (message.setupComplete) {
-            if (this.stopped) { ws.terminate(); return; }
-            clearTimeout(timeout);
-            ready = true;
-            const previous = this.ws;
-            this.ws = ws;
-            this.failures = 0;
-            this.status = "active";
-            previous?.close();
-            resolve();
-            return;
-          }
-          if (!ready || this.ws !== ws || this.stopped) return;
-          if (message.sessionResumptionUpdate?.resumable) this.resumeHandle = message.sessionResumptionUpdate.newHandle;
-          if (message.goAway) this.scheduleReconnect(0);
-          const content = message.serverContent;
-          for (const part of content?.modelTurn?.parts || []) if (part.inlineData?.data) this.queueAudio(part.inlineData.data);
-          if (content?.outputTranscription?.text) {
-            this.text += content.outputTranscription.text;
-            this.textTimer ??= setTimeout(() => { this.textTimer = undefined; this.flushText(false); }, 250);
-          }
-          if (content?.turnComplete) { this.flushText(true); this.segment++; }
-        } catch { /* Ignore malformed provider messages without logging speech. */ }
-      });
-      ws.on("error", () => { if (!ready) { clearTimeout(timeout); reject(new Error("Gemini connection failed")); } });
-      ws.on("close", () => {
-        clearTimeout(timeout);
+    return connectGemini({
+      apiKey: this.config.geminiApiKey,
+      targetLanguage: this.targetLanguage,
+      model: process.env.GEMINI_MODEL,
+      resumeHandle: this.resumeHandle,
+      signal: this.shutdown.signal,
+      onSocket: (ws) => { this.sockets.add(ws); },
+      onReady: (ws) => {
+        const previous = this.ws;
+        this.ws = ws;
+        this.failures = 0;
+        this.status = "active";
+        previous?.close();
+      },
+      onMessage: (message, ws) => { if (this.ws === ws && !this.stopped) this.handleGeminiMessage(message); },
+      onClose: (ws) => {
         this.sockets.delete(ws);
-        if (!ready) reject(new Error("Gemini closed before setup"));
         if (this.ws === ws && !this.stopped) {
           this.ws = undefined;
           this.status = "reconnecting";
           this.scheduleReconnect();
         }
-      });
+      },
     });
+  }
+
+  private handleGeminiMessage(message: GeminiMessage) {
+    if (message.sessionResumptionUpdate?.resumable) this.resumeHandle = message.sessionResumptionUpdate.newHandle;
+    if (message.goAway) this.scheduleReconnect(0);
+    const content = message.serverContent;
+    for (const part of content?.modelTurn?.parts || []) if (part.inlineData?.data) this.queueAudio(part.inlineData.data);
+    if (content?.outputTranscription?.text) {
+      this.text += content.outputTranscription.text;
+      this.textTimer ??= setTimeout(() => { this.textTimer = undefined; this.flushText(false); }, 250);
+    }
+    if (content?.turnComplete) { this.flushText(true); this.segment++; }
   }
 
   private scheduleReconnect(delay = Math.min(1000 * 2 ** this.failures, 15_000)) {
@@ -163,7 +151,8 @@ export class TranslationBridge {
       if (this.stopped) return;
       this.reconnecting = true;
       try { await this.openGemini(); }
-      catch {
+      catch (error) {
+        if (error instanceof ServiceError) logServiceError(error);
         this.failures++;
         if (this.failures >= 6) { this.status = "error"; await this.stop().catch(() => {}); }
       } finally {

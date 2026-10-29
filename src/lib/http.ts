@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { ADMIN_COOKIE, takeRateLimit, verifyTicket } from "./security";
+import { logServiceError, safeErrorDetails, ServiceError } from "./service-error";
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -52,11 +53,15 @@ export function json(value: unknown, status = 200) {
 }
 
 export function apiError(error: unknown) {
+  if (error instanceof ServiceError) {
+    logServiceError(error);
+    return json({ error: `${error.publicMessage} Felkod: ${error.code}.`, code: error.code }, 503);
+  }
   if (error instanceof HttpError) {
     const response = json({ error: error.message }, error.status);
     if (error.status === 429) response.headers.set("Retry-After", "60");
     return response;
   }
-  console.error("[API] Operation failed", error instanceof Error ? error.name : "UnknownError");
+  console.error("[API] Operation failed", { type: error instanceof Error ? error.name : "UnknownError", detail: safeErrorDetails(error) });
   return json({ error: "Tjänsten kunde inte slutföra anropet. Försök igen om en stund." }, 503);
 }

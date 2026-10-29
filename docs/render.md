@@ -56,6 +56,8 @@ Appen använder automatiskt Renders betrodda `RENDER_EXTERNAL_URL` för kontroll
 - **Inloggning nekas på egen domän:** kontrollera `APP_URL`, driftsätt ändringen och öppna exakt samma HTTPS-origin.
 - **LiveKit/Gemini är markerade konfigurerade men start misslyckas:** status verifierar att uppgifterna finns; kontrollera nycklarnas giltighet, modellåtkomst, kvoter och ljudanslutningen i den verkliga driftsmiljön.
 
+Startfel visas med en felkod i admin och som `[Translation]` med `stage`, `code` och en maskerad felorsak i Render-loggen. `GEMINI_AUTH` gäller åtkomst/API-nyckel, `GEMINI_QUOTA` kvot, `GEMINI_MODEL` modellåtkomst och `GEMINI_SETUP_INVALID` startmeddelandets API-schema. `LIVEKIT_CONNECT`, `LIVEKIT_PUBLISH` och `BRIDGE_RUNTIME` visar om problemet ligger i ljudanslutning, publicering eller serverns ljudmodul. Lösenord, API-nycklar och kända tokenformat maskeras innan felorsaken loggas. Publicera inte osanerade loggar från andra komponenter.
+
 ## Källor
 
 - [Render Blueprints](https://render.com/docs/infrastructure-as-code)

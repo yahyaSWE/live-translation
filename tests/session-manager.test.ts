@@ -11,7 +11,7 @@ function fixture(options: { hold?: boolean; fail?: boolean } = {}) {
   let release = () => {};
   const gate = options.hold ? new Promise<void>((resolve) => { release = resolve; }) : Promise.resolve();
   const bridge = {
-    identity: "translator-sv", status: "starting" as "starting" | "active" | "closed", onStop: undefined as (() => void) | undefined,
+    identity: "translator-sv", status: "starting" as "starting" | "active" | "reconnecting" | "closed", onStop: undefined as (() => void) | undefined,
     async start() { starts++; await gate; if (options.fail) throw new Error("Provider refused"); bridge.status = "active"; },
     async stop() { stops++; bridge.status = "closed"; bridge.onStop?.(); },
   };
@@ -80,5 +80,19 @@ test("paused and stale broadcasts are not advertised as live", async () => {
   assert.equal(f.manager.publicStatus().state, "interrupted");
   await f.manager.heartbeat(session.sessionId, false);
   assert.equal(f.manager.publicStatus().state, "paused");
+  await f.manager.endSession(session.sessionId);
+});
+
+test("admin heartbeats do not tear down a bridge while its socket reconnects", async () => {
+  const f = fixture();
+  const session = await f.manager.createSession("Test");
+  await f.manager.heartbeat(session.sessionId, true);
+  f.bridge.status = "reconnecting";
+  await f.manager.heartbeat(session.sessionId, true);
+  assert.equal(f.starts(), 1);
+  assert.equal(f.stops(), 0);
+  assert.equal(f.manager.publicStatus().state, "starting");
+  f.bridge.status = "active";
+  assert.equal(f.manager.publicStatus().state, "live");
   await f.manager.endSession(session.sessionId);
 });
