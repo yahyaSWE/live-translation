@@ -3,12 +3,16 @@ import { test, expect } from "@playwright/test";
 test("public page waits honestly and fits desktop and mobile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  for (const [name, width, height] of [["desktop", 1440, 1000], ["mobile", 390, 844]] as const) {
+  for (const [name, width, height] of [["desktop", 1440, 1000], ["mobile", 390, 844], ["small-mobile", 320, 720]] as const) {
     await page.setViewportSize({ width, height });
     await page.goto("/");
     await expect(page.getByRole("button", { name: "Lyssna på svenska" })).toBeDisabled();
     await expect(page.getByRole("status")).toContainText("Ingen sändning");
     await expect(page.locator("html")).toHaveAttribute("lang", "sv");
+    await expect(page).toHaveTitle("Khutbah Live");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Fredagens khutbah");
+    await expect(page.locator("[lang='ar']")).toHaveAttribute("dir", "rtl");
+    await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/public-${name}.png`, fullPage: true });
   }
@@ -38,6 +42,24 @@ test("admin login, setup state, session cookie and logout", async ({ page, conte
   await page.getByRole("button", { name: "Logga ut" }).click();
   await expect(page.getByLabel("Lösenord", { exact: true })).toBeVisible();
   expect((await context.cookies()).some((item) => item.name === "lt_admin")).toBe(false);
+});
+
+test("live khutbah layout uses local fonts and keeps the join action visible on mobile", async ({ page }) => {
+  const fontRequests: string[] = [];
+  page.on("request", (request) => { if (/fonts\.(?:googleapis|gstatic)\.com/.test(request.url())) fontRequests.push(request.url()); });
+  await page.route("**/api/live", (route) => route.fulfill({ json: { state: "live", sessionId: "lt-layout-test", title: "Fredagens khutbah", targetLanguage: "sv" } }));
+  for (const [name, width, height] of [["desktop", 1440, 1000], ["mobile", 390, 844]] as const) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    const button = page.getByRole("button", { name: "Lyssna på svenska" });
+    await expect(button).toBeEnabled();
+    await page.evaluate(() => document.fonts.ready);
+    const box = await button.boundingBox();
+    expect(box && box.y + box.height <= height).toBeTruthy();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: `test-results/khutbah-live-${name}.png`, fullPage: true });
+  }
+  expect(fontRequests).toEqual([]);
 });
 
 test("public callers cannot perform admin actions or choose an organizer identity", async ({ request, page }) => {

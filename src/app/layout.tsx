@@ -16,11 +16,12 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
+import { APP_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Live Translate",
+  title: APP_NAME,
   description:
-    "Lyssna på arabiskt tal, översatt till svenska i realtid.",
+    "Följ fredagens khutbah med direktöversatt ljud och svensk textning.",
 };
 
 export default function RootLayout({

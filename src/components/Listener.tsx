@@ -6,6 +6,8 @@ import { LiveKitRoom, RoomAudioRenderer, StartAudio, useRoomContext } from "@liv
 import { ConnectionState, Room, RoomEvent, Track, type RemoteParticipant, type RemoteTrackPublication } from "livekit-client";
 import { api, errorMessage } from "@/lib/client-api";
 import type { LiveStatus } from "@/lib/public-types";
+import SiteBrand from "./SiteBrand";
+import { DEFAULT_BROADCAST_TITLE } from "@/lib/brand";
 
 function ListeningControls() {
   const room = useRoomContext();
@@ -45,9 +47,9 @@ function ListeningControls() {
     <input id="listen-volume" type="range" min="0" max="100" value={volume} onChange={(e) => setVolume(Number(e.target.value))} />
     <label className="check-label"><input type="checkbox" checked={captions} onChange={(e) => setCaptions(e.target.checked)} /> Visa svensk textning</label>
     {captions && <section className="transcript-section" aria-label="Svensk textning">
-      <h2 className="section-title">Det som sägs</h2>
+      <h2 className="section-title">Predikan på svenska</h2>
       <div ref={transcript} className="transcript-text" tabIndex={0}>
-        <p>{text || "Texten visas här när talaren börjar prata."}</p>
+        <p>{text || "Texten visas här när predikan börjar."}</p>
       </div>
       <p className="fine-print">Automatisk översättning kan innehålla fel.</p>
     </section>}
@@ -143,21 +145,28 @@ export default function Listener({ sessionId }: { sessionId?: string }) {
   const endedLink = Boolean(sessionId && live && live.sessionId !== sessionId);
   const canJoin = !endedLink && !statusError && live?.state === "live";
   const listening = connection === "connected" || connection === "reconnecting";
-  const message = !live ? "Hämtar sändningen…" : endedLink ? "Den här sändningen har avslutats." : live.state === "live" ? "Sändningen är igång. Välkommen att lyssna." : live.state === "paused" ? "Talaren förbereder sändningen eller har tagit en paus." : live.state === "starting" ? "Översättningen startar. Det tar en liten stund." : live.state === "interrupted" ? "Sändningen har tappat anslutningen. Vi väntar på talaren." : "Ingen sändning pågår just nu. Sidan uppdateras automatiskt.";
+  const message = !live ? "Hämtar sändningen…" : endedLink ? "Den här sändningen har avslutats." : live.state === "live" ? "Khutbah är igång. Välkommen att lyssna." : live.state === "paused" ? "Predikan förbereds eller är pausad." : live.state === "starting" ? "Översättningen startar. Det tar en liten stund." : live.state === "interrupted" ? "Sändningen har tappat anslutningen. Vi väntar på talaren." : "Ingen sändning pågår just nu. Vi väntar på fredagens khutbah.";
 
-  return <main className="page audience-page">
+  return <main className={`page audience-page${listening ? " is-listening" : ""}`}>
     <div className="audience-shell">
-      <header className="site-header"><Link href="/" className="wordmark">Live <em>Translate</em></Link><span className="language-pair">Arabiska till svenska</span></header>
+      <header className="site-header"><SiteBrand /><span className="language-pair">Arabiska till svenska</span></header>
       <section className="audience-main">
-        <h1 className="display audience-heading">{listening ? <>Du lyssnar<br /><em>på svenska.</em></> : <>Var med.<br /><em>På ditt språk.</em></>}</h1>
-        <p className="audience-description">Lyssna på talet, översatt till svenska i realtid. Använd gärna hörlurar.</p>
+        <h1 className="display audience-heading">
+          <span className="arabic-title" lang="ar" dir="rtl">خطبة الجمعة</span>
+          <span className="heading-swedish">{listening ? <>Du följer khutbah<br />på svenska.</> : <>Fredagens khutbah<br />på svenska.</>}</span>
+        </h1>
+        <p className="audience-description">{listening ? "Lyssna och följ predikan med svensk textning." : "Ta del av fredagens predikan med direktöversatt ljud och svensk textning."}</p>
         <div className="broadcast-status" role="status"><span className={`live-dot ${live?.state === "live" ? "is-live" : ""}`} aria-hidden="true" /><span>{statusError ? "Kan inte hämta status. Kontrollerar anslutningen igen…" : listening && connection === "reconnecting" ? "Anslutningen bröts. Återansluter automatiskt…" : message}</span></div>
-        {live?.sessionId && <p className="broadcast-name">{live.title}</p>}
+        {live?.sessionId && live.title !== DEFAULT_BROADCAST_TITLE && <p className="broadcast-name">{live.title}</p>}
         {error && <p className="error-message" role="alert">{error}</p>}
         {!listening && <button className="btn btn-dark join-button" disabled={!canJoin || connection === "connecting"} onClick={() => void join()}>
           {connection === "connecting" ? "Ansluter…" : connection === "disconnected" ? "Anslut igen" : "Lyssna på svenska"}
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth="1.5" /></svg>
         </button>}
+        {!listening && <p className="headphone-note">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 13h3v8H5a1 1 0 0 1-1-1v-7Zm16 0h-3v8h2a1 1 0 0 0 1-1v-7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+          Använd hörlurar och sätt telefonen på ljudlöst.
+        </p>}
         {endedLink && <Link href="/" className="btn btn-outline wide">Till aktuell sändning</Link>}
         {room && <LiveKitRoom room={room} serverUrl="" token="" connect={false} audio={false} video={false}>
           <RoomAudioRenderer />
@@ -165,7 +174,7 @@ export default function Listener({ sessionId }: { sessionId?: string }) {
         </LiveKitRoom>}
         {room && <button className="btn btn-outline wide leave-button" onClick={leave}>{listening ? "Sluta lyssna" : "Avbryt anslutningen"}</button>}
       </section>
-      <footer className="site-footer"><span>Direktöversättning med AI</span><Link href="/admin">Administratör</Link></footer>
+      <footer className="site-footer"><span>Khutbah · Direktöversättning med AI</span><Link href="/admin">Administratör</Link></footer>
     </div>
   </main>;
 }

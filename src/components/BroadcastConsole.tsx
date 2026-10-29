@@ -8,6 +8,7 @@ import { ConnectionState } from "livekit-client";
 import SessionQRCode from "./SessionQRCode";
 import { api, ClientApiError, errorMessage } from "@/lib/client-api";
 import type { LiveStatus } from "@/lib/public-types";
+import SiteBrand from "./SiteBrand";
 
 const subscribeOrigin = () => () => {};
 const getOrigin = () => window.location.origin;
@@ -139,7 +140,7 @@ function Controls({ sessionId, title, onEnding }: { sessionId: string; title: st
 
   const connected = connection === ConnectionState.Connected;
   return <div className="admin-shell">
-    <header className="site-header"><Link href="/admin" className="wordmark">Live <em>Translate</em></Link><a href="/" target="_blank" rel="noreferrer">Lyssnarsidan</a></header>
+    <header className="site-header"><SiteBrand href="/admin" /><a href="/" target="_blank" rel="noreferrer">Lyssnarsidan</a></header>
     <section className="admin-main">
       <h1 className="display display-lg">{title}</h1>
       <div className="broadcast-status" role="status"><span className={`live-dot ${live?.state === "live" && broadcasting ? "is-live" : ""}`} aria-hidden="true" /><span>{!connected ? "Återansluter till ljudservern…" : !isMicrophoneEnabled ? "Mikrofonen är av. Du sänder inte." : live?.state === "live" ? "Du är live. Översättningen till svenska är igång." : "Mikrofonen är på. Översättningen startar…"}</span></div>
@@ -152,7 +153,7 @@ function Controls({ sessionId, title, onEnding }: { sessionId: string; title: st
           {devices.filter((d) => d.deviceId !== "default").map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `Mikrofon ${i + 1}`}</option>)}
         </select>
         <button className={`btn ${isMicrophoneEnabled ? "btn-outline" : "btn-dark"} wide microphone-button`} onClick={() => void toggleMicrophone()} disabled={busy || !connected || ending}>{busy ? "Vänta…" : isMicrophoneEnabled ? "Pausa mikrofonen" : "Slå på mikrofonen och gå live"}</button>
-        <p className="fine-print">Prata arabiska. Språket identifieras automatiskt och översätts till svenska. Håll den här sidan öppen under sändningen.</p>
+        <p className="fine-print">Predikan översätts från arabiska till svenska. Håll sidan öppen och lyssnarnas högtalare borta från mikrofonen.</p>
       </section>
       <div className="listener-count"><span>Anslutna lyssnare</span><span>{listeners ?? "–"} <span className="capacity-label">/ 200</span></span></div>
       <section className="admin-section share-section">
@@ -169,7 +170,7 @@ function Controls({ sessionId, title, onEnding }: { sessionId: string; title: st
         {confirmEnd ? <><p>Avsluta sändningen för alla lyssnare?</p><div className="button-row"><button className="btn-danger" disabled={ending} onClick={() => void end()}>{ending ? "Avslutar…" : "Ja, avsluta sändningen"}</button><button className="btn btn-outline" disabled={ending} onClick={() => setConfirmEnd(false)}>Fortsätt sända</button></div></> : <button className="btn-danger wide" disabled={busy} onClick={() => setConfirmEnd(true)}>Avsluta sändningen</button>}
       </section>
     </section>
-    <footer className="site-footer"><span>Arabiska till svenska</span><Link href="/admin">Till admin</Link></footer>
+    <footer className="site-footer"><span>Khutbah · Arabiska till svenska</span><Link href="/admin">Till admin</Link></footer>
   </div>;
 }
 

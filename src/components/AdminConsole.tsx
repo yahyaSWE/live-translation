@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, ClientApiError, errorMessage } from "@/lib/client-api";
 import type { AdminStatus } from "@/lib/public-types";
+import SiteBrand from "./SiteBrand";
+import { DEFAULT_BROADCAST_TITLE } from "@/lib/brand";
 
 export default function AdminConsole({ authenticated }: { authenticated: boolean }) {
   const router = useRouter();
   const [signedIn, setSignedIn] = useState(authenticated);
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<AdminStatus | null>(null);
-  const [title, setTitle] = useState("Direktöversättning");
+  const [title, setTitle] = useState(DEFAULT_BROADCAST_TITLE);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,10 +61,10 @@ export default function AdminConsole({ authenticated }: { authenticated: boolean
 
   const ready = status && Object.values(status.configuration).every(Boolean);
   return <main className="page admin-page"><div className="admin-shell">
-    <header className="site-header"><Link href="/" className="wordmark">Live <em>Translate</em></Link><Link href="/">Lyssnarsidan</Link></header>
+    <header className="site-header"><SiteBrand /><Link href="/">Lyssnarsidan</Link></header>
     <section className="admin-main">
-      <h1 className="display display-lg">{signedIn ? <>Din <em>sändning.</em></> : <>Logga in<br /><em>som administratör.</em></>}</h1>
-      <p className="body">{signedIn ? "Sänd på arabiska. Dina lyssnare hör svenska." : "Här startar och hanterar du direktöversättningen."}</p>
+      <h1 className="display display-lg">{signedIn ? "Fredagens sändning." : <>Välkommen till<br />administrationen.</>}</h1>
+      <p className="body">{signedIn ? "Förbered khutbah på arabiska. Församlingen följer med på svenska." : "Logga in för att förbereda och sända fredagens khutbah."}</p>
       {error && <p className="error-message" role="alert">{error}</p>}
       {!signedIn ? <form onSubmit={(e) => void login(e)} className="admin-form">
         <label className="field-label" htmlFor="admin-password">Lösenord</label>
@@ -92,6 +94,6 @@ export default function AdminConsole({ authenticated }: { authenticated: boolean
         <button className="btn btn-outline wide" onClick={() => void logout()} disabled={busy}>Logga ut</button>
       </>}
     </section>
-    <footer className="site-footer"><span>Arabiska till svenska</span><span>Admin</span></footer>
+    <footer className="site-footer"><span>Khutbah · Arabiska till svenska</span><span>Admin</span></footer>
   </div></main>;
 }

@@ -45,3 +45,10 @@ yarn-error.log*
 next-env.d.ts
 
 cleanup-rooms.js
+
+# Local design choices, previews and screenshots
+/.impeccable/questions/
+/.impeccable/mocks/
+/.impeccable/review/
+/.impeccable/khutbah-direction.json
+/.impeccable/khutbah-brief.md

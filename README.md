@@ -1,6 +1,6 @@
-# Live Translate
+# Khutbah Live
 
-Direktöversättning av arabiskt tal till svenska med Gemini Live Translate och LiveKit. En sändare, en gemensam svensk översättningsström och en publik lyssnarsida utan besökarinloggning. Målet är upp till 200 lyssnare; verklig mediakapacitet måste verifieras med det avsedda LiveKit-projektet.
+Liveöversättning av fredagens khutbah från arabiska till svenska med Gemini Live Translate och LiveKit. En sändare, en gemensam svensk översättningsström och en publik lyssnarsida utan besökarinloggning. Målet är upp till 200 lyssnare; verklig mediakapacitet måste verifieras med det avsedda LiveKit-projektet.
 
 ## Kom igång lokalt
 

@@ -12,7 +12,7 @@ One broadcaster and an open audience of up to 200 simultaneous listeners, primar
 
 ## Product Purpose
 
-Let an audience listen to live Arabic speech translated into Swedish, without visitor accounts or language configuration.
+Let a congregation follow a live Friday khutbah (the sermon associated with Muslim Friday prayer), translated from Arabic into Swedish, without visitor accounts or language configuration. This use and a visual redesign were explicitly requested by the user on 2026-10-29.
 
 ## Operating Context
 
@@ -24,8 +24,8 @@ Next.js, Gemini Live Translate and LiveKit. One shared Swedish translation strea
 
 ## Brand Commitments
 
-Existing product name: Live Translate. Preserve the existing visual identity while adapting the operational interface. Interface language: Swedish.
+Interface language: Swedish. The user has requested a new identity appropriate to a live khutbah and Friday prayer; this supersedes the earlier instruction to preserve the original Live Translate appearance. No mosque name or logo has been supplied. Do not invent prayer times, a congregation's name, scripture quotations or a recording library.
 
 ## Open Decisions
 
-Public domain, final hosting account and public broadcast title are not yet supplied. No recordings or visitor accounts are requested.
+The app is deployed on Render and the user has confirmed that live translation works. The user selected the light, restrained khutbah direction on 2026-10-29 and authorized pushing the finished redesign. Final mosque identity is not supplied. No recordings or visitor accounts are requested.

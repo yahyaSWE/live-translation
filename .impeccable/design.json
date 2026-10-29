@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T22:21:30.448Z",
+  "title": "Design System: Khutbah Live",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0037 91.48)",
+          "oklch(26% 0.0060 91.48)",
+          "oklch(38% 0.0077 91.48)",
+          "oklch(49% 0.0082 91.48)",
+          "oklch(61% 0.0077 91.48)",
+          "oklch(72% 0.0063 91.48)",
+          "oklch(84% 0.0040 91.48)",
+          "oklch(95% 0.0013 91.48)"
+        ]
+      },
+      "bg-elevated": {
+        "role": "neutral",
+        "displayName": "Sage Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0055 116.81)",
+          "oklch(26% 0.0088 116.81)",
+          "oklch(38% 0.0113 116.81)",
+          "oklch(49% 0.0121 116.81)",
+          "oklch(61% 0.0114 116.81)",
+          "oklch(72% 0.0093 116.81)",
+          "oklch(84% 0.0058 116.81)",
+          "oklch(95% 0.0019 116.81)"
+        ]
+      },
+      "bg-inset": {
+        "role": "neutral",
+        "displayName": "Inset Sage",
+        "tonalRamp": [
+          "oklch(15% 0.0071 126.83)",
+          "oklch(26% 0.0114 126.83)",
+          "oklch(38% 0.0145 126.83)",
+          "oklch(49% 0.0156 126.83)",
+          "oklch(61% 0.0147 126.83)",
+          "oklch(72% 0.0120 126.83)",
+          "oklch(84% 0.0075 126.83)",
+          "oklch(95% 0.0024 126.83)"
+        ]
+      },
+      "fg": {
+        "role": "primary",
+        "displayName": "Deep Green Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0184 170.36)",
+          "oklch(26% 0.0295 170.36)",
+          "oklch(38% 0.0376 170.36)",
+          "oklch(49% 0.0405 170.36)",
+          "oklch(61% 0.0381 170.36)",
+          "oklch(72% 0.0312 170.36)",
+          "oklch(84% 0.0195 170.36)",
+          "oklch(95% 0.0063 170.36)"
+        ]
+      },
+      "fg-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0115 153.56)",
+          "oklch(26% 0.0185 153.56)",
+          "oklch(38% 0.0236 153.56)",
+          "oklch(49% 0.0254 153.56)",
+          "oklch(61% 0.0239 153.56)",
+          "oklch(72% 0.0196 153.56)",
+          "oklch(84% 0.0122 153.56)",
+          "oklch(95% 0.0040 153.56)"
+        ]
+      },
+      "fg-tertiary": {
+        "role": "neutral",
+        "displayName": "Tertiary Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0102 152.39)",
+          "oklch(26% 0.0163 152.39)",
+          "oklch(38% 0.0208 152.39)",
+          "oklch(49% 0.0224 152.39)",
+          "oklch(61% 0.0210 152.39)",
+          "oklch(72% 0.0172 152.39)",
+          "oklch(84% 0.0108 152.39)",
+          "oklch(95% 0.0035 152.39)"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Muted Brass",
+        "tonalRamp": [
+          "oklch(15% 0.0331 84.99)",
+          "oklch(26% 0.0531 84.99)",
+          "oklch(38% 0.0677 84.99)",
+          "oklch(49% 0.0728 84.99)",
+          "oklch(61% 0.0685 84.99)",
+          "oklch(72% 0.0561 84.99)",
+          "oklch(84% 0.0351 84.99)",
+          "oklch(95% 0.0114 84.99)"
+        ]
+      },
+      "accent-soft": {
+        "role": "secondary",
+        "displayName": "Brass Wash",
+        "tonalRamp": [
+          "oklch(15% 0.0095 88.72)",
+          "oklch(26% 0.0153 88.72)",
+          "oklch(38% 0.0195 88.72)",
+          "oklch(49% 0.0210 88.72)",
+          "oklch(61% 0.0198 88.72)",
+          "oklch(72% 0.0162 88.72)",
+          "oklch(84% 0.0101 88.72)",
+          "oklch(95% 0.0033 88.72)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Fine Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0080 106.75)",
+          "oklch(26% 0.0128 106.75)",
+          "oklch(38% 0.0163 106.75)",
+          "oklch(49% 0.0175 106.75)",
+          "oklch(61% 0.0165 106.75)",
+          "oklch(72% 0.0135 106.75)",
+          "oklch(84% 0.0084 106.75)",
+          "oklch(95% 0.0027 106.75)"
+        ]
+      },
+      "border-light": {
+        "role": "neutral",
+        "displayName": "Light Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0067 106.68)",
+          "oklch(26% 0.0107 106.68)",
+          "oklch(38% 0.0137 106.68)",
+          "oklch(49% 0.0147 106.68)",
+          "oklch(61% 0.0138 106.68)",
+          "oklch(72% 0.0113 106.68)",
+          "oklch(84% 0.0071 106.68)",
+          "oklch(95% 0.0023 106.68)"
+        ]
+      },
+      "success": {
+        "role": "primary",
+        "displayName": "Live Green",
+        "tonalRamp": [
+          "oklch(15% 0.0378 154.53)",
+          "oklch(26% 0.0607 154.53)",
+          "oklch(38% 0.0774 154.53)",
+          "oklch(49% 0.0832 154.53)",
+          "oklch(61% 0.0783 154.53)",
+          "oklch(72% 0.0641 154.53)",
+          "oklch(84% 0.0401 154.53)",
+          "oklch(95% 0.0130 154.53)"
+        ]
+      },
+      "error": {
+        "role": "error",
+        "displayName": "Error Red",
+        "tonalRamp": [
+          "oklch(15% 0.0670 27.21)",
+          "oklch(26% 0.1076 27.21)",
+          "oklch(38% 0.1373 27.21)",
+          "oklch(49% 0.1475 27.21)",
+          "oklch(61% 0.1389 27.21)",
+          "oklch(72% 0.1137 27.21)",
+          "oklch(84% 0.0711 27.21)",
+          "oklch(95% 0.0231 27.21)"
+        ]
+      },
+      "error-soft": {
+        "role": "error",
+        "displayName": "Error Wash",
+        "tonalRamp": [
+          "oklch(15% 0.0070 48.56)",
+          "oklch(26% 0.0112 48.56)",
+          "oklch(38% 0.0143 48.56)",
+          "oklch(49% 0.0154 48.56)",
+          "oklch(61% 0.0145 48.56)",
+          "oklch(72% 0.0119 48.56)",
+          "oklch(84% 0.0074 48.56)",
+          "oklch(95% 0.0024 48.56)"
+        ]
+      },
+      "control-border": {
+        "role": "neutral",
+        "displayName": "Control Stroke",
+        "tonalRamp": [
+          "oklch(15% 0.0106 132.60)",
+          "oklch(26% 0.0170 132.60)",
+          "oklch(38% 0.0217 132.60)",
+          "oklch(49% 0.0234 132.60)",
+          "oklch(61% 0.0220 132.60)",
+          "oklch(72% 0.0180 132.60)",
+          "oklch(84% 0.0113 132.60)",
+          "oklch(95% 0.0037 132.60)"
+        ]
+      },
+      "danger-border": {
+        "role": "error",
+        "displayName": "Danger Stroke",
+        "tonalRamp": [
+          "oklch(15% 0.0304 34.51)",
+          "oklch(26% 0.0487 34.51)",
+          "oklch(38% 0.0622 34.51)",
+          "oklch(49% 0.0668 34.51)",
+          "oklch(61% 0.0629 34.51)",
+          "oklch(72% 0.0515 34.51)",
+          "oklch(84% 0.0322 34.51)",
+          "oklch(95% 0.0105 34.51)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Primary Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0170 169.74)",
+          "oklch(26% 0.0273 169.74)",
+          "oklch(38% 0.0348 169.74)",
+          "oklch(49% 0.0374 169.74)",
+          "oklch(61% 0.0352 169.74)",
+          "oklch(72% 0.0288 169.74)",
+          "oklch(84% 0.0180 169.74)",
+          "oklch(95% 0.0059 169.74)"
+        ]
+      },
+      "primary-active": {
+        "role": "primary",
+        "displayName": "Primary Active",
+        "tonalRamp": [
+          "oklch(15% 0.0159 166.76)",
+          "oklch(26% 0.0255 166.76)",
+          "oklch(38% 0.0326 166.76)",
+          "oklch(49% 0.0350 166.76)",
+          "oklch(61% 0.0330 166.76)",
+          "oklch(72% 0.0270 166.76)",
+          "oklch(84% 0.0169 166.76)",
+          "oklch(95% 0.0055 166.76)"
+        ]
+      },
+      "qr-paper": {
+        "role": "neutral",
+        "displayName": "QR Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Audience Display",
+        "purpose": "Introductory Swedish heading; reduced in the connected state."
+      },
+      "headline": {
+        "displayName": "Admin Headline",
+        "purpose": "Fluid administration and broadcast headings."
+      },
+      "arabic": {
+        "displayName": "Arabic Title",
+        "purpose": "Arabic notice text with explicit language and right-to-left direction."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Swedish explanatory and operational text."
+      },
+      "title": {
+        "displayName": "Section Title",
+        "purpose": "Sans-serif section hierarchy."
+      },
+      "label": {
+        "displayName": "Action Label",
+        "purpose": "Medium-weight action text."
+      },
+      "transcript": {
+        "displayName": "Swedish Transcript",
+        "purpose": "Long-form live captions with roomy line-height."
+      },
+      "wordmark": {
+        "displayName": "Text Wordmark",
+        "purpose": "Khutbah Live text identity."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "background-color 180ms ease, border-color 180ms ease, color 180ms ease",
+        "purpose": "Button state feedback; removed under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "640px"
+      }
+    ],
+    "tonalRampNote": "Tonal ramps are derived OKLCH inspection aids, not additional shipped palette tokens. Source tokens and values remain normative in DESIGN.md."
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The primary operational action, using green ink and paper text.",
+      "html": "<button class=\"ds-primary\">Förbered sändning</button>",
+      "css": ".ds-primary{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:50px;padding:13px 24px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.5;text-decoration:none;cursor:pointer;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;background:var(--fg,#213F35);color:var(--bg,#F7F5EF)}.ds-primary:hover:not(:disabled){background:#153027}.ds-primary:active:not(:disabled){background:#0E261D}.ds-primary:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}.ds-primary:disabled{background:var(--bg-inset,#E3E8DD);border-color:var(--border,#D9D9CC);color:var(--fg-secondary,#536257);cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-outline,.ds-danger,.ds-join{transition:none}}"
+    },
+    {
+      "name": "Join Button",
+      "kind": "button",
+      "refersTo": "button-join",
+      "description": "The full-width listening action for the public introduction.",
+      "html": "<button class=\"ds-join\">Lyssna på svenska <svg width=\"21\" height=\"21\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></button>",
+      "css": ".ds-join{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:50px;padding:13px 24px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.5;text-decoration:none;cursor:pointer;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;background:var(--fg,#213F35);color:var(--bg,#F7F5EF)}.ds-join:hover:not(:disabled){background:#153027}.ds-join:active:not(:disabled){background:#0E261D}.ds-join:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}.ds-join:disabled{background:var(--bg-inset,#E3E8DD);border-color:var(--border,#D9D9CC);color:var(--fg-secondary,#536257);cursor:not-allowed}.ds-join{width:100%;min-height:72px;padding:20px 28px;font-size:18px}@media(max-width:640px){.ds-join{min-height:66px;padding:18px 20px;font-size:17px}}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-outline,.ds-danger,.ds-join{transition:none}}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "A secondary action on the flat paper surface.",
+      "html": "<button class=\"ds-outline\">Kopiera adress</button>",
+      "css": ".ds-outline{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:50px;padding:13px 24px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.5;text-decoration:none;cursor:pointer;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;background:transparent;color:var(--fg,#213F35);border-color:#A8B1A2}.ds-outline:hover:not(:disabled){background:var(--bg-elevated,#ECEEE5);border-color:var(--fg,#213F35)}.ds-outline:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}.ds-outline:disabled{color:var(--fg-secondary,#536257);border-color:var(--border,#D9D9CC);cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-outline,.ds-danger,.ds-join{transition:none}}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "The destructive action to end a broadcast.",
+      "html": "<button class=\"ds-danger\">Avsluta sändningen</button>",
+      "css": ".ds-danger{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:50px;padding:13px 24px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.5;text-decoration:none;cursor:pointer;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);transition:background-color 180ms ease,border-color 180ms ease,color 180ms ease;background:transparent;color:var(--error,#A1322C);border-color:#BF8B7E}.ds-danger:hover:not(:disabled){background:var(--error-soft,#F5E9E3)}.ds-danger:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}.ds-danger:disabled{cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-outline,.ds-danger,.ds-join{transition:none}}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "A visible-label field for a broadcast name or administration.",
+      "html": "<label class=\"ds-label\" for=\"ds-title\">Namn på sändningen</label><input class=\"ds-field\" id=\"ds-title\" value=\"Fredagens khutbah\"/>",
+      "css": ".ds-label{display:block;margin-bottom:9px;color:var(--fg,#213F35);font-size:14px;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-field{width:100%;min-height:52px;padding:12px 14px;background:transparent;color:var(--fg,#213F35);border:1px solid #A8B1A2;border-radius:4px;font-size:15px;line-height:1.65;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-field:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;outline-offset:3px}.ds-field::placeholder{color:var(--fg-secondary,#536257)}.ds-field:disabled{color:var(--fg-secondary,#536257);background:var(--bg-elevated,#ECEEE5)}"
+    },
+    {
+      "name": "Select Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "A native microphone-source select with the shared field treatment.",
+      "html": "<label class=\"ds-select-label\" for=\"ds-device\">Ljudkälla</label><select class=\"ds-select\" id=\"ds-device\"><option>Standardmikrofon</option><option>Extern mikrofon</option></select>",
+      "css": ".ds-select-label{display:block;margin-bottom:9px;color:var(--fg,#213F35);font-size:14px;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-select{width:100%;min-height:52px;padding:12px 14px;background:transparent;color:var(--fg,#213F35);border:1px solid #A8B1A2;border-radius:4px;font-size:15px;line-height:1.65;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-select:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;outline-offset:3px}.ds-select:disabled{color:var(--fg-secondary,#536257);background:var(--bg-elevated,#ECEEE5);cursor:not-allowed}"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "description": "The text identity and a small destination link above a fine rule.",
+      "html": "<nav class=\"ds-header\" aria-label=\"Huvudnavigation\"><a class=\"ds-wordmark\" href=\"/\">Khutbah <span>Live</span></a><a class=\"ds-nav-link\" href=\"/admin\">Administratör</a></nav>",
+      "css": ".ds-header{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:94px;padding:26px 0;border-bottom:1px solid var(--border,#D9D9CC);font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-wordmark{color:var(--fg,#213F35);font-size:25px;line-height:1.3;font-weight:600;letter-spacing:-.035em;text-decoration:none;white-space:nowrap}.ds-wordmark span{color:var(--accent,#8B7443);font-weight:400}.ds-nav-link{font-size:13px;color:var(--fg-secondary,#536257);text-underline-offset:4px}.ds-header a:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}@media(max-width:640px){.ds-header{min-height:82px;padding:22px 0;gap:14px}.ds-wordmark{font-size:23px}.ds-nav-link{font-size:12px}}"
+    },
+    {
+      "name": "Broadcast Status",
+      "kind": "custom",
+      "description": "A live status message with a small supporting semantic dot.",
+      "html": "<div class=\"ds-status\" role=\"status\"><span class=\"ds-live-dot\" aria-hidden=\"true\"></span><span>Khutbah är igång. Välkommen att lyssna.</span></div>",
+      "css": ".ds-status{display:flex;align-items:flex-start;gap:10px;color:var(--fg-secondary,#536257);font-size:14px;line-height:1.65;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-live-dot{display:block;flex:0 0 7px;width:7px;height:7px;margin-top:8px;border-radius:50%;background:var(--success,#2F6845)}"
+    },
+    {
+      "name": "Swedish Transcript",
+      "kind": "custom",
+      "description": "The main connected-state reading surface with generous line-height.",
+      "html": "<section class=\"ds-transcript-section\" aria-label=\"Svensk textning\"><h2 class=\"ds-section-title\">Predikan på svenska</h2><div class=\"ds-transcript\" tabindex=\"0\"><p>Texten visas här när predikan börjar.</p></div><p class=\"ds-fine-print\">Automatisk översättning kan innehålla fel.</p></section>",
+      "css": ".ds-transcript-section{padding-top:24px;border-top:1px solid var(--border,#D9D9CC);color:var(--fg,#213F35);font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}.ds-section-title{margin:0 0 18px;font-size:17px;font-weight:500;line-height:1.4}.ds-transcript{max-height:400px;padding-right:12px;overflow-y:auto;font-size:19px;line-height:1.85;overflow-wrap:anywhere;white-space:pre-wrap;scrollbar-color:#A8B1A2 transparent}.ds-transcript p{margin:0}.ds-transcript:focus-visible{outline:2px solid var(--accent,#8B7443);outline-offset:5px;}.ds-fine-print{margin:14px 0 0;font-size:12px;line-height:1.65;color:var(--fg-secondary,#536257)}@media(max-width:640px){.ds-transcript{max-height:340px;font-size:18px;line-height:1.8}}"
+    },
+    {
+      "name": "Error Message",
+      "kind": "custom",
+      "description": "Wrapping operational error feedback using an alert and a quiet red wash.",
+      "html": "<p class=\"ds-error\" role=\"alert\">Kunde inte ansluta till ljudservern. Försök igen.</p>",
+      "css": ".ds-error{margin:22px 0 0;padding:14px 16px;color:var(--error,#A1322C);background:var(--error-soft,#F5E9E3);font-size:14px;line-height:1.65;overflow-wrap:anywhere;text-align:left;font-family:var(--font-body,'DM Sans',system-ui,sans-serif);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Congregation Notice",
+    "overview": "A light, restrained Swedish congregation notice: warm paper, deep green ink, muted brass and fine rules. The service feels calm and legible in a Friday-prayer setting, with Swedish interface text and a distinct Arabic typographic voice.\n\nThe system is code-led and flat. Clear typography and deliberate space carry the identity across public listening, sign-in and broadcast administration. The approved direction uses self-hosted fonts and no decorative raster assets. PRODUCT.md supplies the durable language and identity constraints; individual screen composition belongs to the surface contract.",
+    "keyCharacteristics": [
+      "Warm paper with deep green text and actions.",
+      "Serif headings, Arabic calligraphy and practical sans-serif controls.",
+      "Fine rules and compact, subtly squared controls.",
+      "Readable listening states and explicit broadcast feedback."
+    ],
+    "rules": [
+      {
+        "name": "The Ink and Paper Rule",
+        "body": "Use green for text and primary actions, brass for restrained emphasis, and semantic green or red for operational state. Status always includes words alongside color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Priority Rule",
+        "body": "Reduce introductory type in the connected state so controls and Swedish captions become the main reading surface.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Notice Rule",
+        "body": "Separate content with space, thin rules and state fills; retain the flat document character.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the existing paper, green and brass roles across public and admin screens.",
+      "Do preserve the separate Arabic and Swedish type voices and correct script direction.",
+      "Do keep status understandable through text, with color as supporting information.",
+      "Do preserve roomy caption line-height and the smaller connected-state heading.",
+      "Do carry the visible focus outline and reduced-motion behavior into new controls."
+    ],
+    "donts": [
+      "Don't add floating shadows or decorative gradients to the flat notice system.",
+      "Don't use serif display type for controls or long Swedish caption text.",
+      "Don't turn the introductory bilingual composition into a requirement for every admin screen.",
+      "Don't substitute an invented mosque logo, congregation identity or scripture ornament for the established text identity."
+    ]
+  }
+}

@@ -4,6 +4,7 @@ import { roomService } from "./livekit-server";
 import { MAX_LISTENERS, TARGET_LANGUAGE } from "./server-config";
 import { HttpError } from "./http";
 import { ServiceError } from "./service-error";
+import { DEFAULT_BROADCAST_TITLE } from "./brand";
 
 export const HOST_TIMEOUT_MS = 45_000;
 const MAX_SESSION_MS = 4 * 60 * 60 * 1000;
@@ -128,7 +129,7 @@ export class TranslationSessionManager {
 
   publicStatus() {
     const s = this.session;
-    if (!s) return { state: "waiting" as const, sessionId: null, title: "Direktöversättning", targetLanguage: TARGET_LANGUAGE };
+    if (!s) return { state: "waiting" as const, sessionId: null, title: DEFAULT_BROADCAST_TITLE, targetLanguage: TARGET_LANGUAGE };
     const connected = this.deps.now() - s.lastHeartbeat <= HOST_TIMEOUT_MS;
     const state = !connected ? "interrupted" : !s.broadcasting ? "paused" : this.bridge?.status === "active" ? "live" : "starting";
     return { state, sessionId: s.sessionId, title: s.title, targetLanguage: TARGET_LANGUAGE };
