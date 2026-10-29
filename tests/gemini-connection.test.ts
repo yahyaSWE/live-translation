@@ -24,7 +24,7 @@ async function provider(t: TestContext, handle: (socket: WebSocket) => void, rej
   };
 }
 
-test("raw WebSocket setup passes the provider's transcription field validation", async (t) => {
+test("raw WebSocket setup enables translated captions and suppresses target-language echo", async (t) => {
   let accepted = false;
   const options = await provider(t, (socket) => socket.once("message", (raw) => {
     const { setup } = JSON.parse(raw.toString());
@@ -35,6 +35,7 @@ test("raw WebSocket setup passes the provider's transcription field validation",
     }
     assert.deepEqual(setup.outputAudioTranscription, {});
     assert.equal(setup.generationConfig.translationConfig.targetLanguageCode, "sv");
+    assert.equal(setup.generationConfig.translationConfig.echoTargetLanguage, false);
     assert.equal(setup.model, "models/gemini-3.5-live-translate-preview");
     accepted = true;
     socket.send(JSON.stringify({ setupComplete: {} }));

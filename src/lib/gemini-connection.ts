@@ -59,7 +59,9 @@ export function connectGemini(options: Options): Promise<void> {
         outputAudioTranscription: {},
         generationConfig: {
           responseModalities: ["AUDIO"],
-          translationConfig: { targetLanguageCode: options.targetLanguage, echoTargetLanguage: true },
+          // Suppress speech already in Swedish so captured playback is not echoed.
+          // Physical speaker-to-microphone feedback still requires headphones or separation.
+          translationConfig: { targetLanguageCode: options.targetLanguage, echoTargetLanguage: false },
         },
         sessionResumption: options.resumeHandle ? { handle: options.resumeHandle } : {},
       } }));
